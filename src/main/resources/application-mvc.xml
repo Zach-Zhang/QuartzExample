@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
+
+	<!-- 自动扫描且只扫描@Controller -->
+	<!-- <context:component-scan base-package="com.ydy.recipemanage.web.controller" 
+		use-default-filters="false"> <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" 
+		/> </context:component-scan> -->
+	<context:component-scan base-package="com.zach.quartz.web" />
+	<mvc:annotation-driven />
+	
+	<!-- 返回JSON数据 start -->
+	<bean id="mappingJacksonHttpMessageConverter"
+		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>application/json;charset=UTF-8</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<ref bean="mappingJacksonHttpMessageConverter" />
+			</list>
+		</property>
+	</bean>
+	<!-- 返回JSON数据 end -->
+	
+	<!-- 默认根目录跳转至index -->
+	<mvc:view-controller path="/" view-name="index"/>
+	<mvc:default-servlet-handler default-servlet-name="default"/>
+
+	<!-- Resolver是一种展示策略, viewClass对应展示处理, InternalResourceViewResolver对jsp、jstl的支持好 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<!-- 默认值为下面的，所以不用配置 <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property> -->
+		<property name="prefix" value="/"></property>
+		<property name="suffix" value=".html"></property>
+	</bean>
+
+	<!-- 文件上传 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 文件上传大小限制，单位：字节 -->
+		<property name="maxUploadSize" value="20971520" />
+		 <!-- 最大内存大小 -->  
+    	<property name="maxInMemorySize" value="10240"/>  
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+
+	<!-- 开启aop -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	<!-- 全局异常处理 -->
+	<!-- <bean id="exceptionHandler" class="com.ydy.recipemanage.aspect.ControllerAspect" /> -->
+
+	<!-- 定义国际化消息 -->
+	<!-- <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource"> 
+		<property name="basename" value="message/mess" /> </bean> -->
+
+	<!-- Mapping exception to the handler view <bean id="exceptionResolver" 
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver"> 
+		<property name="defaultErrorView" value="/commons/error"/> <property name="exceptionMappings"> 
+		<props> </props> </property> </bean> -->
+
+	<!-- 拦截器配置 <mvc:interceptors> <mvc:interceptor> <mvc:mapping path="/admin/**"/> 
+		<bean class="cmcc.example.inteceptor.MyInteceptor"></bean> </mvc:interceptor> 
+		</mvc:interceptors> -->
+	<!-- path什么都不写为拦截所有URL <mvc:mapping path=""/> -->
+	<!-- /admin/**为拦截admin及以admin开头的所有URL，如 /admin/user/add/test -->
+	<!-- /admin/*为拦截admin开头下一级URL，如 /admin/user -->
+	<!-- 注意：以上2种配置都不能拦截/test/admin/user这样的请求 -->
+
+	<!-- <bean name="/" class="org.springframework.web.servlet.mvc.ParameterizableViewController"> 
+		<property name="viewName" value="index" /> </bean> -->
+
+	<!-- <mvc:interceptors>
+		token拦截器
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<bean class="com.ydy.recipemanage.aspect.CommonInterceptor">
+				不用token的接口
+				<property name="exceptUrls">
+					<list>
+						<value>/user/doLogin</value>
+						<value>/validateCode/**</value>
+						<value>/user/doLogout</value>
+						<value>/userCompany/doLogin</value>
+						<value>/pharmacyRecipeData/**</value>
+						<value>/pharmacySalesData/**</value>
+						2018-5-28 为了修改登陆失效的bug,进行临时修改 [章生志]
+						<value>/user/findAdminInfo</value>
+						<value>/fileManage/**</value>
+						2018-6-21 ExtraController下的接口不需要token
+						<value>/extra/**</value>
+					</list>
+				</property>
+
+				需要token但不需要权限接口
+				<property name="exceptUrlsNeedTokenNoAuth">
+					<list>
+						<value>/user/modifyPassword</value>
+						<value>/user/findSideBar</value>
+						<value>/region/findRegion</value>
+						<value>/userCompany/modifyPassword</value>
+						<value>/userCompany/findSideBar</value>
+						<value>/userCompany/findAdminInfo</value>
+						<value>/pharmacySalesData/totalDatas</value>
+						<value>/pharmacySalesData/todayDatas</value>
+						<value>/pharmacySalesData/pharmacySalesDataTotalNum</value>
+						<value>/pharmacySalesData/pharmacySalesDataTodayNum</value>
+						<value>/warnManage/findAllDrugExpired</value>
+						<value>/pharmacyManage/**</value>
+					</list>
+				</property>
+
+				需要token且只有高级管理员或者超级管理员才有的权限
+				<property name="exceptUrlsNeedTokenAdmin">
+					<list>
+						<value>/user/addAdmin</value>
+						<value>/user/deleteAdmin</value>
+						<value>/user/modifyAdmin</value>
+						<value>/user/findAdmins</value>
+					</list>
+				</property>
+
+				需要token且是企业方接口
+				<property name="exceptUrlsNeedCompanyToken">
+					<list>
+						<value>/userCompany/**</value>
+						<value>/registerDrugCompany/**</value>
+						<value>/pharmacySalesData/findCompanyPharmacySalesDatas</value>
+						<value>/stockTotal/findStockCompanyTotal</value>
+						<value>/message/**</value>
+						<value>/companyRole/**</value>
+						<value>/companyAuth/**</value>
+						<value>/pharmacyRecipeData/**</value>
+						<value>/pharmacySalesData/detail</value>
+						<value>/companyStock/**</value>
+						<value>/companyWarnManage/**</value>
+20180516企业方紧急开发   临时沿用监管方接口 start
+						<value>/drugRecallManage/**</value>
+20180516企业方紧急开发   临时沿用监管方接口 end
+					</list>
+				</property>
+
+				需要token且是企业方平台超级管理员接口
+				<property name="exceptUrlsNeedCompanyTokenAdmin">
+					<list>
+						<value>/companyAuth/**</value>
+					</list>
+				</property>
+
+				需要token且是企业方超级管理员接口
+				<property name="exceptUrlsNeedCompanyTokenCompanyAdmin">
+					<list>
+						<value>/userCompany/**</value>
+						<value>/companyRole/**</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:interceptor> -->
+
+		<!-- 操作日志拦截器 -->
+		<!-- <mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<bean class="com.ydy.recipemanage.aspect.LogInterceptor">
+			</bean>
+		</mvc:interceptor>
+	</mvc:interceptors> -->
+	
+	<!-- 配置文件加载类 -->
+	<!-- <bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>classpath:other.properties</value>
+		</property>
+		<property name="locations">
+			<list>
+				<value>classpath:*.properties</value>
+			</list>
+		</property>
+	</bean> -->
+</beans>

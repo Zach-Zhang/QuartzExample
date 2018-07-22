@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zach.quartz.mapper.ScheduleJobMapper">
+
+<insert id="addScheduleJob">
+	INSERT INTO task_schedule_job(create_time,update_time,job_name,job_group,job_status,cron_expression,description,bean_class,is_concurrent,spring_id,method_name) 
+	VALUES(NOW(),NOW(),'myTest6','group1',1,'0/5 * * * * ?','噢噢','com.zach.quartz.service.TaskExample',0,'taskExample','test'),
+	(NOW(),NOW(),'myTest7','group1',1,'0/5 * * * * ?','吼吼','com.zach.quartz.service.TaskExample',0,'taskExample','test')
+</insert>
+</mapper>

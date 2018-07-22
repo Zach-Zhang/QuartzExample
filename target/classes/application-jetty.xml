@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="    
+  http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd  
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd  
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd  
+  http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd  
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- 加载Jetty属性配置文件 -->
+	<context:property-placeholder location="classpath:jetty-config.properties" ignore-unresolvable="true" />
+	
+	<!-- 工具类   实现普通类调用通过注解方式的Service层的bean -->
+	<bean id="springBeanFactoryUtils" class="com.zach.common.utils.SpringBeanFactoryUtils"/>
+	
+	<bean id="quartzExample" class="com.zach.QuartzExample">
+		<property name="webServer" ref="webServer"></property>
+	</bean>
+
+ 	<bean id="webServer" class="com.zach.JettyWebServer"
+		init-method="init">
+		<property name="port" value="${webServer.port}" />
+		<property name="webappPath" value="${webapp.path}" />
+	</bean>
+	
+	<!-- MBeanExporter -->
+	<!-- <bean id="jmxExporter" class="org.springframework.jmx.export.MBeanExporter"
+		depends-on="springMbeanServer">
+		<property name="beans">
+			<map>
+				<entry key="MX4J:name=HttpAdaptor" value-ref="httpAdaptor" />
+				<entry key="Manager:name=StatisticsDataManager" value-ref="statisticsDataManager" 
+					/> <entry key="Manager:name=DataRule" value-ref="dataRule" /> <entry key="Manager:name=RefreshJobs" 
+					value-ref="refreshJobs" />
+			</map>
+		</property>
+		<property name="server" ref="springMbeanServer"></property>
+		<property name="assembler">
+			<bean id="assembler"
+				class="org.springframework.jmx.export.assembler.MetadataMBeanInfoAssembler">
+				<property name="attributeSource">
+					<bean id="attributeSource"
+						class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource" />
+				</property>
+			</bean>
+		</property>
+	</bean> -->
+
+	<!-- MBeanServerFactoryBean -->
+	<!-- <bean id="springMbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean" /> -->
+	
+	<!-- HttpAdaptor & XSLTProcessor -->
+	<!-- <bean id="httpAdaptor" class="com.ydy.recipemanage.utils.MyHttpAdaptor">
+		<property name="authMap">
+			<map>
+				可在这里增加多个认证的用户
+				<entry key="${jmx.httpAdaptor.user}" value="${jmx.httpAdaptor.password}" />
+			</map>
+		</property>
+		<property name="processor">
+			XSLTProcessor
+			<bean id="xsltProcessor" class="mx4j.tools.adaptor.http.XSLTProcessor" />
+		</property>
+		<property name="host" value="${jmx.httpAdaptor.ip}" />
+		<property name="port" value="${jmx.httpAdaptor.port}" />
+		<property name="authenticationMethod" value="basic"></property>
+	</bean> -->
+</beans>
